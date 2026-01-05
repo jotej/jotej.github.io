@@ -27,7 +27,7 @@ $$
 \hat{\theta}_{\mathrm{MLE}}=\arg\max_{\theta}\;\prod_{i=1}^{n} p_{\theta}(y_i \mid x_i).
 $$
 
-Let’s reframe the labels as given beliefs $y$ attached to observations $x$. From this view, we can see what a generative model would be asked to learn under those beliefs. Assuming $y$ takes values in a small discrete set $\mathcal{Y}$, we take the prior to be fixed from the dataset, so it does not depend on $\theta$. Bayes’ rule then gives:
+Let’s reframe the labels as given beliefs $y$ attached to observations $x$. From this view, we can see a conceptual Bayes decomposition of the same conditional likelihood, written in generative terms. Assuming $y$ takes values in a small discrete set $\mathcal{Y}$, we take the prior to be fixed from the dataset, so it does not depend on $\theta$. Bayes’ rule then gives:
 
 $$
 \hat{\theta}_{\mathrm{MLE}}
@@ -35,6 +35,6 @@ $$
 =\arg\max_{\theta}\;\prod_{i=1}^{n}\frac{p_{\theta}(x_i \mid y_i)}{\sum_{y\in\mathcal{Y}} p_{\theta}(x_i\mid y)\,p(y)}.
 $$
 
-Now consider what it would mean to learn $p_{\theta}(x_i \mid y_i)$ under this objective. A hand-crafted belief $y$ can correspond to countless observations $x$. We cannot realistically describe every relevant nuance manually, and even if we tried, what would be the right way to embed the beliefs so the model generalizes?
+Now consider what it would mean to learn $p_{\theta}(x_i \mid y_i)$ under this objective. A hand-crafted belief $y$ can correspond to countless observations $x$. We cannot realistically describe every relevant nuance manually, and even if we tried, what would be the right way to embed the beliefs so the model generalizes? More fundamentally, fitting $p_{\theta}(y\mid x)$ does not define a unique $p_{\theta}(x)$, so there is no single generative story for the model to recover.
 
 A better approach is to let the model learn the structure of the data first, and let its own internal beliefs about the data form from what it observes.
