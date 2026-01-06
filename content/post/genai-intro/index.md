@@ -19,22 +19,34 @@ It makes sense, then, to strive for models that learn free of the distortions ou
 
 ## Labels as imposed beliefs
 
-The following derivation is meant to build intuition for why discriminative modeling can be a lousy way for a model to learn the structure of the data distribution.
+The following is a quick way to see why training only a classifier can be an unreliable way to learn the structure of the data distribution:
 
-Under the usual i.i.d. assumption for labeled data $\\{(x_i,y_i)\\}_{i=1}^n$, the MLE is:
+We have labeled pairs \(\{(x_i,y_i)\}_{i=1}^n\). The usual conditional MLE objective is
+\[
+\hat\theta_{\text{MLE}}=\arg\max_{\theta}\prod_{i=1}^n p_{\theta}(y_i\mid x_i).
+\]
 
-$$
-\hat{\theta}_{\mathrm{MLE}}=\arg\max_{\theta}\;\prod_{i=1}^{n} p_{\theta}(y_i \mid x_i).
-$$
+Now ask a broad question. After training \(p_\theta(y\mid x)\), what can we actually say about the data distribution \(p(x)\)?
 
-Let’s reframe the labels as given beliefs $y$ attached to observations $x$. From this view, we can see a conceptual Bayes decomposition of the same conditional likelihood, written in generative terms. Assuming $y$ takes values in a small discrete set $\mathcal{Y}$, we take the prior to be fixed from the dataset, so it does not depend on $\theta$. Bayes’ rule then gives:
+Bayes rule gives
+\[
+p(y\mid x)=\frac{p(x\mid y)p(y)}{p(x)}
+\quad\text{and}\quad
+p(x)=\sum_{y'\in\mathcal Y} p(x\mid y')p(y').
+\]
+So we can also write
+\[
+p(y\mid x)=\frac{p(x\mid y)p(y)}{\sum_{y'\in\mathcal Y} p(x\mid y')p(y')}.
+\]
 
-$$
-\hat{\theta}_{\mathrm{MLE}}
-=\arg\max_{\theta}\;\prod_{i=1}^{n}\frac{p_{\theta}(x_i \mid y_i)\,p(y_i)}{p_{\theta}(x_i)}
-=\arg\max_{\theta}\;\prod_{i=1}^{n}\frac{p_{\theta}(x_i \mid y_i)}{\sum_{y\in\mathcal{Y}} p_{\theta}(x_i\mid y)\,p(y)}.
-$$
+Now connect this to labels. In most supervised settings, labels are coarse. Many distinct observations \(x\) share the same label \(y\). That means there are typically many different ways to choose class-conditional densities that are consistent with the same learned conditional \(p_\theta(y\mid x)\). To make this explicit, pick any such choice and denote it by \(\{q_{\phi}(x\mid y)\}_{y\in\mathcal Y}\). Then
+\[
+p_{\theta}(y\mid x)=\frac{q_{\phi}(x\mid y)p(y)}{\sum_{y'\in\mathcal Y} q_{\phi}(x\mid y')p(y')}.
+\]
 
-Now consider what it would mean to learn $p_{\theta}(x_i \mid y_i)$ under this objective. A hand-crafted belief $y$ can correspond to countless observations $x$. We cannot realistically describe every relevant nuance manually, and even if we tried, what would be the right way to embed the beliefs so the model generalizes? More fundamentally, fitting $p_{\theta}(y\mid x)$ does not define a unique $p_{\theta}(x)$, so there is no single generative story for the model to recover.
+The key point is that this \(\{q_{\phi}(x\mid y)\}_{y\in\mathcal Y}\) is not unique. Many different families can induce the same conditional \(p_{\theta}(y\mid x)\). So fitting \(p_{\theta}(y\mid x)\) does not pin down a unique marginal
+\[
+p(x)=\sum_{y\in\mathcal Y} q_{\phi}(x\mid y)p(y).
+\]
 
-A better approach is to let the model learn the structure of the data first, and let its own internal beliefs about the data form from what it observes.
+If the goal is for the model to understand the structure in the observations, we should train with an objective that directly targets the data distribution \(p(x)\).
